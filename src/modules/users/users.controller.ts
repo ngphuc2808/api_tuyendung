@@ -10,7 +10,8 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ResponseMessage } from 'src/decorator/customize';
+import { ResponseMessage, User } from 'src/decorator/customize';
+import { IUser } from './users.interface';
 
 @Controller('users')
 export class UsersController {
@@ -18,8 +19,8 @@ export class UsersController {
 
   @Post()
   @ResponseMessage('Create user')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(@Body() createUserDto: CreateUserDto, @User() user: IUser) {
+    return this.usersService.create(createUserDto, user);
   }
 
   @Get(':id')
@@ -36,8 +37,8 @@ export class UsersController {
 
   @Patch()
   @ResponseMessage('Update user')
-  update(@Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(updateUserDto);
+  update(@Body() updateUserDto: UpdateUserDto, @User() user: IUser) {
+    return this.usersService.update(updateUserDto, user);
   }
 
   @Delete(':id')

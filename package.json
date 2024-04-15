@@ -29,6 +29,7 @@
     "@nestjs/mongoose": "9.2.2",
     "@nestjs/passport": "9.0.3",
     "@nestjs/platform-express": "9.4.0",
+    "@nestjs/typeorm": "^10.0.2",
     "@types/bcryptjs": "2.4.2",
     "api-query-params": "^5.4.0",
     "bcryptjs": "2.4.3",
@@ -43,6 +44,7 @@
     "run-script-webpack-plugin": "^0.2.0",
     "rxjs": "7.2.0",
     "soft-delete-plugin-mongoose": "^1.0.17",
+    "typeorm": "^0.3.20",
     "webpack": "^5.91.0",
     "webpack-node-externals": "^3.0.0"
   },

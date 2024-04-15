@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Company, CompanyDocument } from './schemas/company.schema';
 import mongoose, { Model } from 'mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { IUser } from 'src/users/users.interface';
+import { IUser } from 'src/modules/users/users.interface';
 import aqp from 'api-query-params';
 
 @Injectable()
