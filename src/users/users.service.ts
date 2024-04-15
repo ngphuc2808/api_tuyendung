@@ -75,6 +75,7 @@ export class UsersService {
     }
 
     await this.userModel.softDelete({ _id: id });
+
     return { message: 'Deleted!' };
   }
 }

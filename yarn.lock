@@ -1470,7 +1470,7 @@ anymatch@^3.0.3, anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-api-query-params@5.4.0:
+api-query-params@^5.4.0:
   version "5.4.0"
   resolved "https://registry.yarnpkg.com/api-query-params/-/api-query-params-5.4.0.tgz#c0730ad8b94827c32c7737571ad92b426183f50e"
   integrity sha512-dQ6HwtM4Z7Kpmcbd5jZr3PzwwB7mj0tRbOaP3WTA+YOmFcGyj/8hpD65O7QqvcbToTcFjQDznSmlLms24UaFhA==

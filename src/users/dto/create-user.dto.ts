@@ -4,16 +4,16 @@ export class CreateUserDto {
   @IsEmail(
     {},
     {
-      message: 'Sai định dạng email!',
+      message: 'Wrong email format!',
     },
   )
   @IsNotEmpty({
-    message: 'Vui lòng nhập email!',
+    message: 'Email is required!',
   })
   email: string;
 
   @IsNotEmpty({
-    message: 'Vui lòng nhập mật khẩu!',
+    message: 'Password is required!',
   })
   password: string;
   name: string;
