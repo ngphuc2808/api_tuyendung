@@ -5,6 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { JwtAuthGuard } from './modules/auth/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
+import cookieParser from 'cookie-parser';
+
 declare const module: any;
 
 async function bootstrap() {
@@ -21,7 +23,10 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
+    credentials: true,
   });
+
+  app.use(cookieParser());
 
   app.setGlobalPrefix('api');
   app.enableVersioning({

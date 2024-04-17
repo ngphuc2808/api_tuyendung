@@ -111,7 +111,8 @@ export class UsersService {
   async findAll(currentPage: number, limit: number, qs: string) {
     const { filter, sort, population } = aqp(qs);
 
-    delete filter.page;
+    delete filter.current;
+    delete filter.pageSize;
 
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
@@ -181,5 +182,22 @@ export class UsersService {
     });
 
     return { message: 'Deleted!' };
+  }
+
+  async updateUserToken(refreshToken: string, _id: string) {
+    await this.userModel.updateOne(
+      { _id },
+      {
+        refreshToken,
+      },
+    );
+  }
+
+  async findUserByToken(refreshToken: string) {
+    const user = await this.userModel.findOne({
+      refreshToken,
+    });
+
+    return user;
   }
 }
