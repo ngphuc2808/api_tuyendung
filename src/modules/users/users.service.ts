@@ -7,6 +7,7 @@ import mongoose, { Model } from 'mongoose';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from './users.interface';
+import aqp from 'api-query-params';
 
 @Injectable()
 export class UsersService {
@@ -90,9 +91,11 @@ export class UsersService {
       return 'Data not found!';
     }
 
-    let user = await this.userModel.findOne({
-      _id: id,
-    });
+    let user = await this.userModel
+      .findOne({
+        _id: id,
+      })
+      .select('-password');
 
     return user;
   }
@@ -105,31 +108,77 @@ export class UsersService {
     return user;
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(currentPage: number, limit: number, qs: string) {
+    const { filter, sort, population } = aqp(qs);
+
+    delete filter.page;
+
+    let offset = (+currentPage - 1) * +limit;
+    let defaultLimit = +limit ? +limit : 10;
+    const totalItems = (await this.userModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.userModel
+      .find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      .select('-password')
+      .sort(sort as any)
+      .populate(population)
+      .exec();
+
+    return {
+      meta: {
+        current: currentPage, //trang hiện tại
+        pageSize: limit, //số lượng bản ghi đã lấy
+        pages: totalPages, //tổng số trang với điều kiện query total: totalItems // tổng số phần tử (số bản ghi)
+        total: totalItems,
+      },
+      result, //kết quả query
+    };
   }
 
   async update(updateUserDto: UpdateUserDto, user: IUser) {
-    let updatedUser = await this.userModel.updateOne(
-      { _id: updateUserDto._id },
+    try {
+      const { password, ...rest } = updateUserDto;
+
+      let updatedUser = await this.userModel.updateOne(
+        { _id: updateUserDto._id },
+        {
+          ...rest,
+          updatedBy: {
+            _id: user._id,
+            email: user.email,
+          },
+        },
+      );
+
+      return updatedUser;
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new BadRequestException(`${error.keyValue.email} already exist!`);
+      }
+    }
+  }
+
+  async remove(id: string, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return 'Data not found!';
+    }
+
+    await this.userModel.updateOne(
+      { _id: id },
       {
-        ...updateUserDto,
-        updatedBy: {
+        deletedBy: {
           _id: user._id,
           email: user.email,
         },
       },
     );
 
-    return updatedUser;
-  }
-
-  async remove(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'Data not found!';
-    }
-
-    await this.userModel.softDelete({ _id: id });
+    await this.userModel.softDelete({
+      _id: id,
+    });
 
     return { message: 'Deleted!' };
   }

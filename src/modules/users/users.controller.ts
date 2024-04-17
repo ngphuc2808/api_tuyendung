@@ -10,7 +10,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from './users.interface';
 
 @Controller('users')
@@ -23,6 +23,7 @@ export class UsersController {
     return this.usersService.create(createUserDto, user);
   }
 
+  @Public()
   @Get(':id')
   @ResponseMessage('Find user')
   findOne(@Param('id') id: string) {
@@ -43,7 +44,7 @@ export class UsersController {
 
   @Delete(':id')
   @ResponseMessage('Delete user')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  remove(@Param('id') id: string, @User() user: IUser) {
+    return this.usersService.remove(id, user);
   }
 }
