@@ -91,11 +91,7 @@ export class UsersService {
       return 'Data not found!';
     }
 
-    let user = await this.userModel
-      .findOne({
-        _id: id,
-      })
-      .select('-password');
+    let user = await this.userModel.findById(id).select('-password');
 
     return user;
   }

@@ -1,30 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCompanyDto } from './dto/create-company.dto';
-import { UpdateCompanyDto } from './dto/update-company.dto';
+import { CreateJobDto } from './dto/create-job.dto';
+import { UpdateJobDto } from './dto/update-job.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Company, CompanyDocument } from './schemas/company.schema';
-import mongoose, { Model } from 'mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { IUser } from 'src/modules/users/users.interface';
+import { Job, JobDocument } from './schemas/job.schema';
+import { IUser } from '../users/users.interface';
 import aqp from 'api-query-params';
+import mongoose from 'mongoose';
 
 @Injectable()
-export class CompaniesService {
+export class JobsService {
   constructor(
-    @InjectModel(Company.name)
-    private readonly companyModel: SoftDeleteModel<CompanyDocument>,
+    @InjectModel(Job.name)
+    private readonly jobModel: SoftDeleteModel<JobDocument>,
   ) {}
 
-  async create(createCompanyDto: CreateCompanyDto, user: IUser) {
-    let company = await this.companyModel.create({
-      ...createCompanyDto,
+  async create(createJobDto: CreateJobDto, user: IUser) {
+    let job = await this.jobModel.create({
+      ...createJobDto,
       createdBy: {
         _id: user._id,
         email: user.email,
       },
     });
 
-    return company;
+    return job;
+  }
+
+  async findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return 'Data not found!';
+    }
+
+    let job = await this.jobModel.findOne({
+      _id: id,
+      isDeleted: false,
+      isActive: true,
+    });
+
+    if (job) {
+      return job;
+    } else {
+      return 'Data not found!';
+    }
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
@@ -35,10 +53,10 @@ export class CompaniesService {
 
     let offset = (+currentPage - 1) * +limit;
     let defaultLimit = +limit ? +limit : 10;
-    const totalItems = (await this.companyModel.find(filter)).length;
+    const totalItems = (await this.jobModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.companyModel
+    const result = await this.jobModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -57,11 +75,11 @@ export class CompaniesService {
     };
   }
 
-  async update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {
-    let company = await this.companyModel.updateOne(
+  async update(id: string, updateJobDto: UpdateJobDto, user: IUser) {
+    let job = await this.jobModel.updateOne(
       { _id: id },
       {
-        ...updateCompanyDto,
+        ...updateJobDto,
         updatedBy: {
           _id: user._id,
           email: user.email,
@@ -69,7 +87,7 @@ export class CompaniesService {
       },
     );
 
-    return company;
+    return job;
   }
 
   async remove(id: string, user: IUser) {
@@ -77,17 +95,18 @@ export class CompaniesService {
       return 'Data not found!';
     }
 
-    await this.companyModel.updateOne(
+    await this.jobModel.updateOne(
       { _id: id },
       {
         deletedBy: {
           _id: user._id,
           email: user.email,
         },
+        isActive: false,
       },
     );
 
-    await this.companyModel.softDelete({
+    await this.jobModel.softDelete({
       _id: id,
     });
 
