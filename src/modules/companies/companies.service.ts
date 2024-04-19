@@ -57,6 +57,16 @@ export class CompaniesService {
     };
   }
 
+  async findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return 'Data not found!';
+    }
+
+    let company = await this.companyModel.findById(id);
+
+    return company;
+  }
+
   async update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {
     let company = await this.companyModel.updateOne(
       { _id: id },

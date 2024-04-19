@@ -8,6 +8,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { JobsModule } from './modules/jobs/jobs.module';
+import { FilesModule } from './modules/files/files.module';
+import { ResumesModule } from './resumes/resumes.module';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -28,6 +30,8 @@ import { JobsModule } from './modules/jobs/jobs.module';
     AuthModule,
     CompaniesModule,
     JobsModule,
+    FilesModule,
+    ResumesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
