@@ -1,21 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 
-export type CompanyDocument = HydratedDocument<Company>;
+export type PermissionDocument = HydratedDocument<Permission>;
 
 @Schema({ timestamps: true })
-export class Company {
+export class Permission {
   @Prop()
   name: string;
 
   @Prop()
-  logo: string;
+  apiPath: string;
 
   @Prop()
-  address: string;
+  method: string;
 
   @Prop()
-  description: string;
+  module: string;
 
   @Prop()
   isDeleted: boolean;
@@ -39,4 +39,4 @@ export class Company {
   deletedAt: Date;
 }
 
-export const CompanySchema = SchemaFactory.createForClass(Company);
+export const PermissionSchema = SchemaFactory.createForClass(Permission);

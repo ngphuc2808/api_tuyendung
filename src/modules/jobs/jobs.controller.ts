@@ -42,7 +42,7 @@ export class JobsController {
     return this.jobsService.findOne(id);
   }
 
-  @Patch('update/:id')
+  @Patch(':id')
   @ResponseMessage('Update job')
   update(
     @Param('id') id: string,
@@ -52,7 +52,7 @@ export class JobsController {
     return this.jobsService.update(id, updateCompanyDto, user);
   }
 
-  @Delete('delete/:id')
+  @Delete(':id')
   @ResponseMessage('Delete job')
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.jobsService.remove(id, user);

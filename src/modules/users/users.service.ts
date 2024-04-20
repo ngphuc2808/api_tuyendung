@@ -8,12 +8,14 @@ import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from './users.interface';
 import aqp from 'api-query-params';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: SoftDeleteModel<UserDocument>,
+    private configService: ConfigService,
   ) {}
 
   handleHashPassword = (password: string) => {
@@ -40,7 +42,7 @@ export class UsersService {
 
     const newPassword = this.handleHashPassword(password);
 
-    let newUser = await this.userModel.create({
+    const newUser = await this.userModel.create({
       name,
       email,
       password: newPassword,
@@ -73,7 +75,7 @@ export class UsersService {
     }
     const newPassword = this.handleHashPassword(password);
 
-    let user = await this.userModel.create({
+    const user = await this.userModel.create({
       name,
       email,
       password: newPassword,
@@ -88,20 +90,30 @@ export class UsersService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'Data not found!';
+      throw new BadRequestException(`User not found with id=${id}!`);
     }
 
-    let user = await this.userModel.findById(id).select('-password');
+    const user = await this.userModel.findById(id).select('-password');
 
-    return user;
+    const newUser = user.populate({
+      path: 'role',
+      select: { name: 1, _id: 1 },
+    });
+
+    return newUser;
   }
 
   async findOneByUsername(username: string) {
-    let user = await this.userModel.findOne({
+    const user = await this.userModel.findOne({
       email: username,
     });
 
-    return user;
+    const newUser = user.populate({
+      path: 'role',
+      select: { name: 1, permissions: 1 },
+    });
+
+    return newUser;
   }
 
   async findAll(currentPage: number, limit: number, qs: string) {
@@ -110,8 +122,8 @@ export class UsersService {
     delete filter.current;
     delete filter.pageSize;
 
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    const offset = (+currentPage - 1) * +limit;
+    const defaultLimit = +limit ? +limit : 10;
     const totalItems = (await this.userModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
@@ -126,20 +138,26 @@ export class UsersService {
 
     return {
       meta: {
-        current: currentPage, //trang hiện tại
-        pageSize: limit, //số lượng bản ghi đã lấy
-        pages: totalPages, //tổng số trang với điều kiện query total: totalItems // tổng số phần tử (số bản ghi)
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
         total: totalItems,
       },
-      result, //kết quả query
+      result,
     };
   }
 
   async update(updateUserDto: UpdateUserDto, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(user._id.toString())) {
+      throw new BadRequestException(
+        `Permission not found with id=${user._id.toString()}!`,
+      );
+    }
+
     try {
       const { password, ...rest } = updateUserDto;
 
-      let updatedUser = await this.userModel.updateOne(
+      const updatedUser = await this.userModel.updateOne(
         { _id: updateUserDto._id },
         {
           ...rest,
@@ -160,7 +178,12 @@ export class UsersService {
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'Data not found!';
+      throw new BadRequestException(`User not found with id=${id}!`);
+    }
+
+    const checkAdmin = await this.userModel.findById(id);
+    if (checkAdmin.email === this.configService.get<string>('EMAIL_ADMIN')) {
+      throw new BadRequestException('Can not delete account admin!');
     }
 
     await this.userModel.updateOne(

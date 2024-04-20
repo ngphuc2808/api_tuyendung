@@ -9,7 +9,10 @@ import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { JobsModule } from './modules/jobs/jobs.module';
 import { FilesModule } from './modules/files/files.module';
-import { ResumesModule } from './resumes/resumes.module';
+import { ResumesModule } from './modules/resumes/resumes.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { DatabasesModule } from './databases/databases.module';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -32,6 +35,9 @@ import { ResumesModule } from './resumes/resumes.module';
     JobsModule,
     FilesModule,
     ResumesModule,
+    PermissionsModule,
+    RolesModule,
+    DatabasesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

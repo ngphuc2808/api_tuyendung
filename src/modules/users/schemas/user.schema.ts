@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { IsMongoId } from 'class-validator';
 import mongoose, { HydratedDocument } from 'mongoose';
+import { Role } from 'src/modules/roles/schemas/role.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -29,8 +31,11 @@ export class User {
   @Prop({ type: Object })
   company: { _id: mongoose.Schema.Types.ObjectId; email: string };
 
-  @Prop()
-  role: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
+  @IsMongoId({
+    message: 'Role is a mongo id!',
+  })
+  role: Role;
 
   @Prop()
   refreshToken: string;
@@ -39,7 +44,7 @@ export class User {
   createdBy: { _id: mongoose.Schema.Types.ObjectId; email: string };
 
   @Prop({ type: Object })
-  updatedBy: { _idL: string; email: string };
+  updatedBy: { _id: mongoose.Schema.Types.ObjectId; email: string };
 
   @Prop({ type: Object })
   deletedBy: { _id: mongoose.Schema.Types.ObjectId; email: string };

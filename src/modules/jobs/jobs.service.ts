@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,7 +16,7 @@ export class JobsService {
   ) {}
 
   async create(createJobDto: CreateJobDto, user: IUser) {
-    let job = await this.jobModel.create({
+    const job = await this.jobModel.create({
       ...createJobDto,
       createdBy: {
         _id: user._id,
@@ -29,10 +29,10 @@ export class JobsService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'Data not found!';
+      throw new BadRequestException(`Job not found with id=${id}!`);
     }
 
-    let job = await this.jobModel.findOne({
+    const job = await this.jobModel.findOne({
       _id: id,
       isDeleted: false,
       isActive: true,
@@ -51,8 +51,8 @@ export class JobsService {
     delete filter.current;
     delete filter.pageSize;
 
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    const offset = (+currentPage - 1) * +limit;
+    const defaultLimit = +limit ? +limit : 10;
     const totalItems = (await this.jobModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
@@ -66,17 +66,21 @@ export class JobsService {
 
     return {
       meta: {
-        current: currentPage, //trang hiện tại
-        pageSize: limit, //số lượng bản ghi đã lấy
-        pages: totalPages, //tổng số trang với điều kiện query total: totalItems // tổng số phần tử (số bản ghi)
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
         total: totalItems,
       },
-      result, //kết quả query
+      result,
     };
   }
 
   async update(id: string, updateJobDto: UpdateJobDto, user: IUser) {
-    let job = await this.jobModel.updateOne(
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`Job not found with id=${id}!`);
+    }
+
+    const job = await this.jobModel.updateOne(
       { _id: id },
       {
         ...updateJobDto,
@@ -92,7 +96,7 @@ export class JobsService {
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'Data not found!';
+      throw new BadRequestException(`Company not found with id=${id}!`);
     }
 
     await this.jobModel.updateOne(

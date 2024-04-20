@@ -2,35 +2,23 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Company } from 'src/modules/companies/schemas/company.schema';
 import { Job } from 'src/modules/jobs/schemas/job.schema';
+import { Permission } from 'src/modules/permissions/schemas/permission.schema';
 
-export type ResumeDocument = HydratedDocument<Resume>;
+export type RoleDocument = HydratedDocument<Role>;
 
 @Schema({ timestamps: true })
-export class Resume {
+export class Role {
   @Prop()
-  email: string;
-
-  @Prop()
-  userId: mongoose.Schema.Types.ObjectId;
+  name: string;
 
   @Prop()
-  url: string;
+  description: string;
 
   @Prop()
-  status: string;
+  isActive: boolean;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Company.name })
-  companyId: Company;
-
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Job.name })
-  jobId: Job;
-
-  @Prop({ type: mongoose.Schema.Types.Array })
-  history: {
-    status: string;
-    updatedAt: Date;
-    updatedBy: { _id: mongoose.Schema.Types.ObjectId; email: string };
-  }[];
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: Permission.name })
+  permissions: Permission[];
 
   @Prop()
   isDeleted: boolean;
@@ -54,4 +42,4 @@ export class Resume {
   deletedAt: Date;
 }
 
-export const ResumeSchema = SchemaFactory.createForClass(Resume);
+export const RoleSchema = SchemaFactory.createForClass(Role);

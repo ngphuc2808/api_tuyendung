@@ -2,7 +2,7 @@ import { IsNotEmpty } from 'class-validator';
 
 export class CreateCompanyDto {
   @IsNotEmpty({
-    message: "Company's name is required!",
+    message: 'CompanyName is required!',
   })
   name: string;
 

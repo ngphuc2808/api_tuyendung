@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsEmail,
+  IsMongoId,
   IsNotEmpty,
   IsNotEmptyObject,
   IsObject,
@@ -10,12 +11,15 @@ import mongoose from 'mongoose';
 
 class Company {
   @IsNotEmpty({
-    message: "Company's id is required!",
+    message: 'CompanyId is required!',
+  })
+  @IsMongoId({
+    message: 'CompanyId is a mongo id!',
   })
   _id: mongoose.Schema.Types.ObjectId;
 
   @IsNotEmpty({
-    message: "Company's name is required!",
+    message: 'CompanyName is required!',
   })
   name: string;
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -16,7 +16,7 @@ export class CompaniesService {
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto, user: IUser) {
-    let company = await this.companyModel.create({
+    const company = await this.companyModel.create({
       ...createCompanyDto,
       createdBy: {
         _id: user._id,
@@ -33,8 +33,8 @@ export class CompaniesService {
     delete filter.current;
     delete filter.pageSize;
 
-    let offset = (+currentPage - 1) * +limit;
-    let defaultLimit = +limit ? +limit : 10;
+    const offset = (+currentPage - 1) * +limit;
+    const defaultLimit = +limit ? +limit : 10;
     const totalItems = (await this.companyModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
@@ -48,27 +48,31 @@ export class CompaniesService {
 
     return {
       meta: {
-        current: currentPage, //trang hiện tại
-        pageSize: limit, //số lượng bản ghi đã lấy
-        pages: totalPages, //tổng số trang với điều kiện query total: totalItems // tổng số phần tử (số bản ghi)
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
         total: totalItems,
       },
-      result, //kết quả query
+      result,
     };
   }
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'Data not found!';
+      throw new BadRequestException(`Company not found with id=${id}!`);
     }
 
-    let company = await this.companyModel.findById(id);
+    const company = await this.companyModel.findById(id);
 
     return company;
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser) {
-    let company = await this.companyModel.updateOne(
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`Company not found with id=${id}!`);
+    }
+
+    const company = await this.companyModel.updateOne(
       { _id: id },
       {
         ...updateCompanyDto,
@@ -84,7 +88,7 @@ export class CompaniesService {
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'Data not found!';
+      throw new BadRequestException(`Company not found with id=${id}!`);
     }
 
     await this.companyModel.updateOne(

@@ -45,7 +45,7 @@ export class Job {
   createdBy: { _id: mongoose.Schema.Types.ObjectId; email: string };
 
   @Prop({ type: Object })
-  updatedBy: { _idL: string; email: string };
+  updatedBy: { _id: mongoose.Schema.Types.ObjectId; email: string };
 
   @Prop({ type: Object })
   deletedBy: { _id: mongoose.Schema.Types.ObjectId; email: string };
