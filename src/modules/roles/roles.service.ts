@@ -2,12 +2,12 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Role, RoleDocument } from './schemas/role.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from '../users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { ConfigService } from '@nestjs/config';
+import { Role, RoleDocument } from './schemas/role.schema';
 
 @Injectable()
 export class RolesService {
@@ -70,7 +70,7 @@ export class RolesService {
 
   async findOne(_id: string) {
     if (!mongoose.Types.ObjectId.isValid(_id)) {
-      throw new BadRequestException(`Role not found with id=${_id}!`);
+      throw new BadRequestException(`Permission not found with id=${_id}!`);
     }
 
     const role = await this.roleModel.findById(_id);
@@ -104,7 +104,7 @@ export class RolesService {
 
   async remove(_id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(_id)) {
-      throw new BadRequestException(`Role not found with id=${_id}!`);
+      throw new BadRequestException(`User not found with id=${_id}!`);
     }
 
     const checkAdmin = await this.roleModel.findById(_id);

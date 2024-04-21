@@ -29,7 +29,7 @@ export class JobsController {
     return this.jobsService.findAll(+currentPage, +limit, qs);
   }
 
-  @Post('create')
+  @Post()
   @ResponseMessage('Create job')
   create(@Body() createJobDto: CreateJobDto, @User() user: IUser) {
     return this.jobsService.create(createJobDto, user);
@@ -46,10 +46,10 @@ export class JobsController {
   @ResponseMessage('Update job')
   update(
     @Param('id') id: string,
-    @Body() updateCompanyDto: UpdateJobDto,
+    @Body() updateJobDto: UpdateJobDto,
     @User() user: IUser,
   ) {
-    return this.jobsService.update(id, updateCompanyDto, user);
+    return this.jobsService.update(id, updateJobDto, user);
   }
 
   @Delete(':id')

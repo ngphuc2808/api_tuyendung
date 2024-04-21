@@ -35,13 +35,13 @@ export class RolesController {
   }
 
   @Get(':id')
-  @ResponseMessage('Find permission')
+  @ResponseMessage('Find role')
   findOne(@Param('id') id: string) {
     return this.rolesService.findOne(id);
   }
 
   @Patch(':id')
-  @ResponseMessage('Update company')
+  @ResponseMessage('Update role')
   update(
     @Param('id') id: string,
     @Body() updateRoleDto: UpdateRoleDto,
@@ -51,7 +51,7 @@ export class RolesController {
   }
 
   @Delete(':id')
-  @ResponseMessage('Delete company')
+  @ResponseMessage('Delete role')
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.rolesService.remove(id, user);
   }

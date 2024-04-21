@@ -36,7 +36,7 @@ export class CompaniesController {
     return this.companiesService.findOne(id);
   }
 
-  @Post('create')
+  @Post()
   @ResponseMessage('Create company')
   create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUser) {
     return this.companiesService.create(createCompanyDto, user);

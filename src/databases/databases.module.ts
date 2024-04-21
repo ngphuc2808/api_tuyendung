@@ -11,6 +11,8 @@ import { Role, RoleSchema } from 'src/modules/roles/schemas/role.schema';
 import { UsersService } from 'src/modules/users/users.service';
 
 @Module({
+  controllers: [DatabasesController],
+  providers: [DatabasesService, UsersService],
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
@@ -18,7 +20,5 @@ import { UsersService } from 'src/modules/users/users.service';
       { name: Role.name, schema: RoleSchema },
     ]),
   ],
-  controllers: [DatabasesController],
-  providers: [DatabasesService, UsersService],
 })
 export class DatabasesModule {}

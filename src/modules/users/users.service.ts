@@ -9,12 +9,18 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from './users.interface';
 import aqp from 'api-query-params';
 import { ConfigService } from '@nestjs/config';
+import { Role, RoleDocument } from '../roles/schemas/role.schema';
+import { USER_ROLE } from 'src/databases/sample';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: SoftDeleteModel<UserDocument>,
+
+    @InjectModel(Role.name)
+    private readonly roleModel: SoftDeleteModel<RoleDocument>,
+
     private configService: ConfigService,
   ) {}
 
@@ -73,6 +79,9 @@ export class UsersService {
     if (isExistEmail) {
       throw new BadRequestException(`Email: ${email} already exists!`);
     }
+
+    const userRole = await this.roleModel.findOne({ name: USER_ROLE });
+
     const newPassword = this.handleHashPassword(password);
 
     const user = await this.userModel.create({
@@ -82,7 +91,7 @@ export class UsersService {
       age,
       gender,
       address,
-      role: 'USER',
+      role: userRole?.id,
     });
 
     return user;
@@ -110,7 +119,7 @@ export class UsersService {
 
     const newUser = user.populate({
       path: 'role',
-      select: { name: 1, permissions: 1 },
+      select: { name: 1 },
     });
 
     return newUser;
@@ -182,7 +191,10 @@ export class UsersService {
     }
 
     const checkAdmin = await this.userModel.findById(id);
-    if (checkAdmin.email === this.configService.get<string>('EMAIL_ADMIN')) {
+    if (
+      checkAdmin &&
+      checkAdmin.email === this.configService.get<string>('EMAIL_ADMIN')
+    ) {
       throw new BadRequestException('Can not delete account admin!');
     }
 
@@ -217,6 +229,11 @@ export class UsersService {
       refreshToken,
     });
 
-    return user;
+    const newUser = user.populate({
+      path: 'role',
+      select: { name: 1 },
+    });
+
+    return newUser;
   }
 }

@@ -44,7 +44,7 @@ export class PermissionsController {
   }
 
   @Patch(':id')
-  @ResponseMessage('Update company')
+  @ResponseMessage('Update permission')
   update(
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,

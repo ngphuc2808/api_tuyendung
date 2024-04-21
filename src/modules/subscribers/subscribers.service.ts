@@ -1,45 +1,55 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateJobDto } from './dto/create-job.dto';
-import { UpdateJobDto } from './dto/update-job.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { Job, JobDocument } from './schemas/job.schema';
 import { IUser } from '../users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { Subscriber, SubscriberDocument } from './schemas/subscriber.schema';
+import { CreateSubscriberDto } from './dto/create-subscriber.dto';
+import { UpdateSubscriberDto } from './dto/update-subscriber.dto';
 
 @Injectable()
-export class JobsService {
+export class SubscribersService {
   constructor(
-    @InjectModel(Job.name)
-    private readonly jobModel: SoftDeleteModel<JobDocument>,
+    @InjectModel(Subscriber.name)
+    private readonly subscriberModel: SoftDeleteModel<SubscriberDocument>,
   ) {}
 
-  async create(createJobDto: CreateJobDto, user: IUser) {
-    const job = await this.jobModel.create({
-      ...createJobDto,
+  async create(createSubscriberDto: CreateSubscriberDto, user: IUser) {
+    const isExistEmail = await this.subscriberModel.findOne({
+      email: createSubscriberDto.email,
+    });
+
+    if (isExistEmail) {
+      throw new BadRequestException(
+        `Email: ${createSubscriberDto.email} already exists!`,
+      );
+    }
+
+    const subscriber = await this.subscriberModel.create({
+      ...createSubscriberDto,
       createdBy: {
         _id: user._id,
         email: user.email,
       },
     });
 
-    return job;
+    return subscriber;
   }
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Job not found with id=${id}!`);
+      throw new BadRequestException(`Subscriber not found with id=${id}!`);
     }
 
-    const job = await this.jobModel.findOne({
+    const subscriber = await this.subscriberModel.findOne({
       _id: id,
       isDeleted: false,
       isActive: true,
     });
 
-    if (job) {
-      return job;
+    if (subscriber) {
+      return subscriber;
     } else {
       return 'Data not found!';
     }
@@ -53,10 +63,10 @@ export class JobsService {
 
     const offset = (+currentPage - 1) * +limit;
     const defaultLimit = +limit ? +limit : 10;
-    const totalItems = (await this.jobModel.find(filter)).length;
+    const totalItems = (await this.subscriberModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.jobModel
+    const result = await this.subscriberModel
       .find(filter)
       .skip(offset)
       .limit(defaultLimit)
@@ -75,15 +85,19 @@ export class JobsService {
     };
   }
 
-  async update(id: string, updateJobDto: UpdateJobDto, user: IUser) {
+  async update(
+    id: string,
+    updateSubscriberDto: UpdateSubscriberDto,
+    user: IUser,
+  ) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Job not found with id=${id}!`);
+      throw new BadRequestException(`Subscriber not found with id=${id}!`);
     }
 
-    const job = await this.jobModel.updateOne(
+    const subscriber = await this.subscriberModel.updateOne(
       { _id: id },
       {
-        ...updateJobDto,
+        ...updateSubscriberDto,
         updatedBy: {
           _id: user._id,
           email: user.email,
@@ -91,15 +105,15 @@ export class JobsService {
       },
     );
 
-    return job;
+    return subscriber;
   }
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Job not found with id=${id}!`);
+      throw new BadRequestException(`Subscriber not found with id=${id}!`);
     }
 
-    await this.jobModel.updateOne(
+    await this.subscriberModel.updateOne(
       { _id: id },
       {
         deletedBy: {
@@ -110,7 +124,7 @@ export class JobsService {
       },
     );
 
-    await this.jobModel.softDelete({
+    await this.subscriberModel.softDelete({
       _id: id,
     });
 
