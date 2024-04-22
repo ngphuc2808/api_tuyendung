@@ -11,7 +11,7 @@ import {
 import { ResumesService } from './resumes.service';
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { ResponseMessage, User } from 'src/decorator/customize';
-import { IUser } from '../users/users.interface';
+import { IUser } from 'src/modules/users/users.interface';
 
 @Controller('resumes')
 export class ResumesController {

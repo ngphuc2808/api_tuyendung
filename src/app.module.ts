@@ -12,8 +12,9 @@ import { FilesModule } from './modules/files/files.module';
 import { ResumesModule } from './modules/resumes/resumes.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { RolesModule } from './modules/roles/roles.module';
-import { DatabasesModule } from './databases/databases.module';
+import { DatabasesModule } from './modules/databases/databases.module';
 import { SubscribersModule } from './modules/subscribers/subscribers.module';
+import { MailModule } from './modules/mail/mail.module';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -40,6 +41,7 @@ import { SubscribersModule } from './modules/subscribers/subscribers.module';
     RolesModule,
     DatabasesModule,
     SubscribersModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

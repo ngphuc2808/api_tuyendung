@@ -10,7 +10,7 @@ import { IUser } from './users.interface';
 import aqp from 'api-query-params';
 import { ConfigService } from '@nestjs/config';
 import { Role, RoleDocument } from '../roles/schemas/role.schema';
-import { USER_ROLE } from 'src/databases/sample';
+import { USER_ROLE } from 'src/modules/databases/sample';
 
 @Injectable()
 export class UsersService {

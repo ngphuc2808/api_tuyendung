@@ -12,7 +12,7 @@ import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
-import { IUser } from '../users/users.interface';
+import { IUser } from 'src/modules/users/users.interface';
 
 @Controller('jobs')
 export class JobsController {
