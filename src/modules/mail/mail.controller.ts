@@ -5,34 +5,12 @@ import { MailerService } from '@nestjs-modules/mailer';
 
 @Controller('mail')
 export class MailController {
-  constructor(
-    private readonly mailService: MailService,
-    private mailerService: MailerService,
-  ) {}
+  constructor(private readonly mailService: MailService) {}
 
-  // @Get()
-  // @ResponseMessage('Test email')
-  // handleTestEmail(@Body('email') email: string) {
-  //   console.log(email);
-  //   return this.mailService.sendCustomEmail(
-  //     email,
-  //     '"Support Team" <support@example.com>',
-  //     'new-job',
-  // {
-  //   name: 'Phuc',
-  // },
-  //   );
-  // }
-
-  @Post('send')
+  @Get()
   @Public()
   @ResponseMessage('Send email')
-  async sendCustomEmail(@Body('to') to: string) {
-    await this.mailService.sendCustomEmail(
-      to,
-      '"Support Team" <support@example.com>',
-      'new-job',
-    );
-    return { message: 'Email sent successfully' };
+  handleTestEmail() {
+    return this.mailService.sendMail();
   }
 }
