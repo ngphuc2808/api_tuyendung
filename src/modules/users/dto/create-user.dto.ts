@@ -17,7 +17,6 @@ class Company {
     message: 'CompanyId is a mongo id!',
   })
   _id: mongoose.Schema.Types.ObjectId;
-
   @IsNotEmpty({
     message: 'CompanyName is required!',
   })

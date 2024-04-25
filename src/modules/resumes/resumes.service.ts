@@ -7,12 +7,16 @@ import { Resume, ResumeDocument } from './schemas/resume.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
+import { User, UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
 export class ResumesService {
   constructor(
     @InjectModel(Resume.name)
     private readonly resumeModel: SoftDeleteModel<ResumeDocument>,
+
+    @InjectModel(User.name)
+    private readonly userModel: SoftDeleteModel<UserDocument>,
   ) {}
 
   async create(createResumeDto: CreateResumeDto, user: IUser) {
@@ -48,7 +52,18 @@ export class ResumesService {
     };
   }
 
-  async findAll(currentPage: number, limit: number, qs: string) {
+  async findAll(currentPage: number, limit: number, qs: string, user: IUser) {
+    const findUserWithRole = await this.findUserById(user._id.toString());
+
+    let checkCompany;
+    if (findUserWithRole?.company?._id && user.role.name === 'HR') {
+      checkCompany = {
+        companyId: findUserWithRole?.company?._id,
+      };
+    } else {
+      checkCompany = {};
+    }
+
     const { filter, sort, population, projection } = aqp(qs);
 
     delete filter.current;
@@ -60,7 +75,10 @@ export class ResumesService {
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
     const result = await this.resumeModel
-      .find(filter)
+      .find({
+        ...filter,
+        ...checkCompany,
+      })
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
@@ -79,14 +97,24 @@ export class ResumesService {
     };
   }
 
+  async findUserById(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`User not found with id=${id}!`);
+    }
+
+    const user = await this.userModel.findById(id);
+
+    return user;
+  }
+
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Resume not found with id=${id}!`);
     }
 
-    const user = await this.resumeModel.findById(id);
+    const resume = await this.resumeModel.findById(id);
 
-    return user;
+    return resume;
   }
 
   async findByUsers(user: IUser) {

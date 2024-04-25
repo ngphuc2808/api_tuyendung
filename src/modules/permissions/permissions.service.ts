@@ -79,9 +79,9 @@ export class PermissionsService {
       throw new BadRequestException(`Permission not found with id=${_id}!`);
     }
 
-    const company = await this.permissionModel.findById(_id);
+    const permission = await this.permissionModel.findById(_id);
 
-    return company;
+    return permission;
   }
 
   async update(

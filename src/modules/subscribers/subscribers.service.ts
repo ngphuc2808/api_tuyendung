@@ -55,6 +55,16 @@ export class SubscribersService {
     }
   }
 
+  async getSkills(user: IUser) {
+    const { email } = user;
+    return await this.subscriberModel.findOne(
+      {
+        email,
+      },
+      { skills: 1 },
+    );
+  }
+
   async findAll(currentPage: number, limit: number, qs: string) {
     const { filter, sort, population } = aqp(qs);
 
@@ -85,17 +95,9 @@ export class SubscribersService {
     };
   }
 
-  async update(
-    id: string,
-    updateSubscriberDto: UpdateSubscriberDto,
-    user: IUser,
-  ) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException(`Subscriber not found with id=${id}!`);
-    }
-
+  async update(updateSubscriberDto: UpdateSubscriberDto, user: IUser) {
     const subscriber = await this.subscriberModel.updateOne(
-      { _id: id },
+      { email: user.email },
       {
         ...updateSubscriberDto,
         updatedBy: {
@@ -103,6 +105,7 @@ export class SubscribersService {
           email: user.email,
         },
       },
+      { upsert: true },
     );
 
     return subscriber;

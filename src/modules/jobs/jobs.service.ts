@@ -7,12 +7,16 @@ import { Job, JobDocument } from './schemas/job.schema';
 import { IUser } from '../users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { User, UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
 export class JobsService {
   constructor(
     @InjectModel(Job.name)
     private readonly jobModel: SoftDeleteModel<JobDocument>,
+
+    @InjectModel(User.name)
+    private readonly userModel: SoftDeleteModel<UserDocument>,
   ) {}
 
   async create(createJobDto: CreateJobDto, user: IUser) {
@@ -45,7 +49,51 @@ export class JobsService {
     }
   }
 
-  async findAll(currentPage: number, limit: number, qs: string) {
+  async findAll(currentPage: number, limit: number, qs: string, user: IUser) {
+    const { filter, sort, population } = aqp(qs);
+
+    const findUserWithRole = await this.findUserById(user._id.toString());
+
+    let checkCompany = {};
+    if (findUserWithRole?.company?._id && user.role.name === 'HR') {
+      checkCompany = {
+        companyId: findUserWithRole?.company?._id,
+      };
+    } else {
+      checkCompany = {};
+    }
+
+    delete filter.current;
+    delete filter.pageSize;
+
+    const offset = (+currentPage - 1) * +limit;
+    const defaultLimit = +limit ? +limit : 10;
+    const totalItems = (await this.jobModel.find(filter)).length;
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const result = await this.jobModel
+      .find({
+        ...filter,
+        ...checkCompany,
+      })
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort(sort as any)
+      .populate(population)
+      .exec();
+
+    return {
+      meta: {
+        current: currentPage,
+        pageSize: limit,
+        pages: totalPages,
+        total: totalItems,
+      },
+      result,
+    };
+  }
+
+  async findAllByUser(currentPage: number, limit: number, qs: string) {
     const { filter, sort, population } = aqp(qs);
 
     delete filter.current;
@@ -115,5 +163,15 @@ export class JobsService {
     });
 
     return { message: 'Deleted!' };
+  }
+
+  async findUserById(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException(`User not found with id=${id}!`);
+    }
+
+    const user = await this.userModel.findById(id);
+
+    return user;
   }
 }
