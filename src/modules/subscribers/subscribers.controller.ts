@@ -17,7 +17,9 @@ import {
   User,
 } from 'src/decorator/customize';
 import { IUser } from '../users/users.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Subscribers')
 @Controller('subscribers')
 export class SubscribersController {
   constructor(private readonly subscribersService: SubscribersService) {}

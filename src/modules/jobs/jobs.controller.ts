@@ -18,7 +18,9 @@ import {
   User,
 } from 'src/decorator/customize';
 import { IUser } from 'src/modules/users/users.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Jobs')
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}

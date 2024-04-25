@@ -12,7 +12,9 @@ import { ResumesService } from './resumes.service';
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/modules/users/users.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Resumes')
 @Controller('resumes')
 export class ResumesController {
   constructor(private readonly resumesService: ResumesService) {}
