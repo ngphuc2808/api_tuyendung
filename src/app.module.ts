@@ -33,10 +33,10 @@ import { HealthModule } from './modules/health/health.module';
       }),
       inject: [ConfigService],
     }),
-    ThrottlerModule.forRoot({
-      ttl: 60,
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
       limit: 5,
-    }),
+    }]),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
